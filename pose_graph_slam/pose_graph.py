@@ -1,21 +1,9 @@
+import time
 import numpy as np
 import scipy as sp
-import time
+import matplotlib.pyplot as plt
 
-def compute_2d_tranfM(x, y, theta):
-
-    return np.array([[np.cos(theta), -np.sin(theta), x],
-                     [np.sin(theta),  np.cos(theta), y],
-                     [            0,              0, 1]])
-
-def wrap_ang(theta):
-
-    if theta < - np.pi:
-        theta += np.pi*2. 
-    elif theta > np.pi:
-        theta -= np.pi*2.
-
-    return theta
+from util import *
 
 class Node():
     def __init__(self, id, x, y, theta):
@@ -51,7 +39,7 @@ class Graph():
 
     def add_node(self, n):
         if n.id not in self.node_list:
-            self.node_list[n.id] = n
+            self.node_list[n.id] = [n, self.N_node]
             self.N_node += 1
 
     def get_node(self, nid):
@@ -60,7 +48,8 @@ class Graph():
     
     def update_node(self, n):
         if n.id in self.node_list:
-            self.node_list[n.id] = n
+            _, index = self.node_list[n.id]
+            self.node_list[n.id] = [n, index]
 
     @staticmethod
     def compute_nz_constants(vi, vj, z_ij):
@@ -132,6 +121,37 @@ class pose_graph():
                     e = Edge(n1_id, n2_id, meas, w)
                     self.graph.add_edge(e)
 
+    def load_toro(self, file_path):
+        # IXX IXY IYY ITT IXT IYT
+        #   6   7   8   9  10  11
+        #   0   1   2   3   4   5
+        toro = [0, 1, 4, 1, 2, 5, 4, 5, 3]
+
+        with open(file_path, "r") as f:
+            
+            for line in f:
+                if line.startswith("#"):
+                    continue
+                
+                txts = line.split()
+                if txts[0] == "VERTEX2":
+                    
+                    pose = np.array([float(x) for x in txts[2:5]])
+                    nid  = int(txts[1])
+                    n    = Node(nid, pose[0], pose[1], pose[2])
+
+                    self.graph.add_node(n)
+
+                elif txts[0] == 'EDGE2':
+                    n1_id, n2_id = int(txts[1]), int(txts[2])
+                    
+                    meas = np.array([float(x) for x in txts[3:6]])
+                    w = np.array([float(x) for x in txts[6:12]])
+                    w = w[toro].reshape((3, 3))
+
+                    e = Edge(n1_id, n2_id, meas, w)
+                    self.graph.add_edge(e)
+
     def solve(self):
         t0 = time.time()
         e_total = 0.
@@ -145,7 +165,7 @@ class pose_graph():
             #get edge info
             vi_id, vj_id, z_ij, w = edge.get_info()
             #load nodes
-            vi, vj = self.graph.get_node(vi_id), self.graph.get_node(vj_id)
+            [vi, vi_index], [vj, vj_index] = self.graph.get_node(vi_id), self.graph.get_node(vj_id)
             #A refers to pose_i, B refers to pose_j
             e, A, B = self.graph.compute_nz_constants(vi, vj, z_ij)
 
@@ -160,8 +180,9 @@ class pose_graph():
             Hij = np.matmul(tmp2, B)
             Hjj = np.matmul(tmp3, B)
 
-            i, j = vi_id - 1, vj_id - 1
-            # print(f'i: {i}, j {j}')
+            # get the node index 
+            i, j = vi_index, vj_index
+
             si, ei = i*3, (i + 1)*3
             sj, ej = j*3, (j + 1)*3
 
@@ -185,8 +206,9 @@ class pose_graph():
         dx = sp.sparse.linalg.spsolve(H_, -b)
 
         for k in list(self.graph.node_list.keys()):
-            n = self.graph.node_list[k]
-            i = (n.id - 1) * 3
+            n, index = self.graph.get_node(k)
+
+            i = index * 3
             n.x += dx[i]
             n.y += dx[i+1]
             n.theta += dx[i+2]
@@ -194,24 +216,44 @@ class pose_graph():
             self.graph.update_node(n)
         dt = time.time() - t0
 
-        print(f"used time: {dt*1e3 :.2f} ms")
+        print(f"used time: {dt*1e3 :.2f} ms, energy: {e_total:g}")
 
         return e_total
 
-    def optimise(self, N_iteration = 10):
+    def optimise(self, N_iteration = 10, is_plot = True):
         
-
         e_prev = np.inf
         for _ in range(N_iteration):
             
             energy = self.solve()
-            print(f'iteration: {_}, e_prev: {e_prev :.5f}, energy: {energy :.5f}')
             if energy >= e_prev:
                 break
+
             e_prev = energy
+            
+        if is_plot:
+            for k in list(self.graph.node_list.keys()):
+                n, _ = pg.graph.get_node(k)
+                plt.plot(n.x, n.y, '.r')
+            plt.show()
 
 pg = pose_graph()
 
-file_path = '/home/ryan/github_repository/robot_SLAM/pose_graph_slam/pg1.g2o'
-pg.load_g2o(file_path)
-pg.optimise()
+# file_path = '/home/ryan/github_repository/robot_SLAM/pose_graph_slam/pg1.g2o'
+file_path = '/home/ryan/github_repository/robot_SLAM/pose_graph_slam/killian-small.toro'
+
+file_type = file_path.split('/')[-1].split('.')[-1]
+
+if file_type == 'toro':
+    print("load toro file")
+    pg.load_toro(file_path)
+elif file_type == 'g2o':
+    print("load g2o file")
+    pg.load_g2o(file_path)
+
+if pg.graph.N_node > 0 and pg.graph.N_edge > 0:
+    print("=== current graph ===")
+    print(f"N_node: {pg.graph.N_node}")
+    print(f"N_edge: {pg.graph.N_edge}")
+    pg.optimise(is_plot = True)
+
