@@ -222,14 +222,14 @@ class pose_graph():
 
     def optimise(self, N_iteration = 10, is_plot = True):
         
-        if is_plot:
-            ax  = plt.subplot(1, 1, 1)
+        # if is_plot:
+        #     # ax  = plt.subplot(1, 1, 1)
 
-            o_node = []
-            for k in list(self.graph.node_list.keys()):
-                n, _ = pg.graph.get_node(k)
-                o_node.append([n.x, n.y])
-            o_node = np.array(o_node)
+        #     o_node = []
+        #     for k in list(self.graph.node_list.keys()):
+        #         n, _ = self.graph.get_node(k)
+        #         o_node.append([n.x, n.y])
+        #     o_node = np.array(o_node)
 
         e_prev = np.inf
         for _ in range(N_iteration):
@@ -240,38 +240,38 @@ class pose_graph():
 
             e_prev = energy
             
-        if is_plot:
-            n_node = []
-            for k in list(self.graph.node_list.keys()):
-                n, _ = pg.graph.get_node(k)
-                n_node.append([n.x, n.y])
+        # if is_plot:
+        #     n_node = []
+        #     for k in list(self.graph.node_list.keys()):
+        #         n, _ = self.graph.get_node(k)
+        #         n_node.append([n.x, n.y])
 
-            n_node = np.array(n_node)
+        #     n_node = np.array(n_node)
 
-            ax.plot(o_node[:, 0], o_node[:, 1], '.r')
-            ax.plot(n_node[:, 0], n_node[:, 1], '.g')
+        #     ax.plot(o_node[:, 0], o_node[:, 1], '.r')
+        #     ax.plot(n_node[:, 0], n_node[:, 1], '.g')
 
-            ax.legend(['raw data', 'optimised'])
-            ax.set_aspect('equal', adjustable='box')
-            plt.show()
+        #     ax.legend(['raw data', 'optimised'])
+        #     ax.set_aspect('equal', adjustable='box')
+        #     plt.show()
 
-pg = pose_graph()
+# pg = pose_graph()
 
-# file_path = '/home/ryan/github_repository/robot_SLAM/pose_graph_slam/pg1.g2o'
-file_path = '/home/ryan/github_repository/robot_SLAM/pose_graph_slam/killian-small.toro'
+# # file_path = '/home/ryan/github_repository/robot_SLAM/pose_graph_slam/pg1.g2o'
+# file_path = '/home/ryan/github_repository/robot_SLAM/pose_graph_slam/killian-small.toro'
 
-file_type = file_path.split('/')[-1].split('.')[-1]
+# file_type = file_path.split('/')[-1].split('.')[-1]
 
-if file_type == 'toro':
-    print("=== load toro file ===")
-    pg.load_toro(file_path)
-elif file_type == 'g2o':
-    print("=== load g2o file ===")
-    pg.load_g2o(file_path)
+# if file_type == 'toro':
+#     print("=== load toro file ===")
+#     pg.load_toro(file_path)
+# elif file_type == 'g2o':
+#     print("=== load g2o file ===")
+#     pg.load_g2o(file_path)
 
-if pg.graph.N_node > 0 and pg.graph.N_edge > 0:
-    print("=== current graph ===")
-    print(f"N_node: {pg.graph.N_node}")
-    print(f"N_edge: {pg.graph.N_edge}")
-    pg.optimise(is_plot = True)
+# if pg.graph.N_node > 0 and pg.graph.N_edge > 0:
+#     print("=== current graph ===")
+#     print(f"N_node: {pg.graph.N_node}")
+#     print(f"N_edge: {pg.graph.N_edge}")
+#     pg.optimise(is_plot = True)
 
