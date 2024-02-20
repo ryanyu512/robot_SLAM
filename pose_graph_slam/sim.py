@@ -59,8 +59,12 @@ def sim(sim_params,
     plt.ion()
     plt.show()
 
-    init_pts = None
     p_pts = None
+
+    #initialise pts_B_hist
+    pts_B_hist = []
+    pts_G = []
+    map_pts = []
     while True:
 
         #=== read keyboard inputs ===#
@@ -102,9 +106,11 @@ def sim(sim_params,
         #check if new node should be added
         if is_optimise:
             pn, _ = pg.graph.get_node(0)
-            p_pts = init_pts
+            p_pts = pts_B_hist[0]
 
             pg.graph.add_node(cn)
+            pts_B_hist.append(robot.pts_B)
+            
             is_add_node = True
             pose_hist.append([robot.x, robot.y, robot.yaw])
         else:
@@ -113,8 +119,8 @@ def sim(sim_params,
             is_add_node = False
             if len(list(pg.graph.node_list.keys())) == 0:
                 pg.graph.add_node(cn)
-                p_pts = robot.pts_B
-                init_pts = robot.pts_B
+                pts_B_hist.append(robot.pts_B)
+                p_pts = pts_B_hist[-1]
                 pose_hist.append([robot.x, robot.y, robot.yaw])
 
                 print(f"=== {pg.graph.N_node} nodes added ===")
@@ -123,6 +129,7 @@ def sim(sim_params,
                 d_ang = wrap_ang(pn.theta - cn.theta)
                 if d >= update_distance or d_ang >= update_ang:
                     pg.graph.add_node(cn)
+                    pts_B_hist.append(robot.pts_B)
                     is_add_node = True
                     pose_hist.append([robot.x, robot.y, robot.yaw])
 
@@ -170,6 +177,24 @@ def sim(sim_params,
 
             if is_optimise:
                 pg.optimise()
+                pts_G = []
+                s_nid = sorted(list(pg.graph.node_list.keys()))
+                for i, k in enumerate(s_nid):
+                    n, _ = pg.graph.get_node(k)
+                    try:
+                        T = compute_2D_Tmat(n.x, n.y, n.theta)
+                        H_pts_B = np.concatenate((
+                                                pts_B_hist[i], 
+                                                np.ones((pts_B_hist[i].shape[0], 1))
+                                                ), 
+                                                axis = 1)
+                        sub_pts_G = np.transpose(np.matmul(T, np.transpose(H_pts_B)))
+                        
+                        pts_G.append(sub_pts_G)
+                    except:
+                        print(i)
+                        print(len(pts_B_hist))
+                        print(s_nid)
 
         ax1.clear()
         for line in map.line_list:
@@ -197,6 +222,11 @@ def sim(sim_params,
 
             #update point cloud at frame i
             p_pts = copy.copy(robot.pts_B)
+
+        if len(pts_G) > 0:
+
+            for pts in pts_G:
+                ax1.plot(pts[:,0], pts[:,1], '.g')
 
         ax1.plot(robot.pts_G[:, 0], robot.pts_G[:, 1], '.y')
 
