@@ -14,7 +14,6 @@ fd = sys.stdin.fileno()
 fl = fcntl.fcntl(fd, fcntl.F_GETFL)
 fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
 
-
 def sim(sim_params, 
         robot_params,
         SLAM_params):
@@ -39,6 +38,7 @@ def sim(sim_params,
     #initialise SLAM setting
     update_distance = SLAM_params['update_distance']
     update_ang = SLAM_params['update_ang']
+
     #initialise simulation step
     lidar_meas_steps = np.ceil(1/Lidar().meas_rate/dt).astype(int)
 
@@ -46,16 +46,21 @@ def sim(sim_params,
     robot = Robot()
     robot.init_state(x = init_x, y = init_y, yaw = init_yaw, v = init_v, theta_dot = init_theta_dot)
     pose_hist = []
+    pose_noise_hist = []
 
     #initialise map
     map = Map2D()
     map.gen_map()
 
+    #initialise grid map
+    gmap = Occupancy_Map()
+    gmap_noise = Occupancy_Map()
+
     #initialise pose graph slam
     pg = pose_graph()
 
     #initialise plotting
-    fig, (ax1, ax2) = plt.subplots(nrows = 1, ncols=2)
+    fig, ax = plt.subplots(nrows = 2, ncols=2)
     plt.ion()
     plt.show()
 
@@ -63,8 +68,9 @@ def sim(sim_params,
 
     #initialise pts_B_hist
     pts_B_hist = []
+
+    #initialise pts_G (to form an occupancy map)
     pts_G = []
-    map_pts = []
     while True:
 
         #=== read keyboard inputs ===#
@@ -93,50 +99,56 @@ def sim(sim_params,
             if pg.graph.N_edge > 0:
                 is_optimise = True
 
+        #update state and measure
         robot.update(dt, 0)
         robot.measure(map)
 
-        #update node
+        #estimate current pose (it is simplified here for the sake of SLAM concept verification)
         x_noise =  np.random.normal(robot.x, pos_std)
         y_noise =  np.random.normal(robot.y, pos_std)
         yaw_noise = np.random.normal(robot.yaw, theta_std)
 
+        #convert robot.pts_B based on noisy estimation
+        pts_G = transform_pts(compute_2d_tranfM(x_noise, 
+                                                y_noise,
+                                                yaw_noise), 
+                             robot.pts_B)
+        #update grid map
+        for pt in pts_G:
+            gmap.update_grid(pt[0], pt[1])
+
+        #update node
         cn    = Node(pg.graph.N_node, x_noise, y_noise, yaw_noise)
 
-        #check if new node should be added
-        if is_optimise:
-            pn, _ = pg.graph.get_node(0)
-            p_pts = pts_B_hist[0]
+        #=== frontend section ===#
 
+        is_add_node = False
+        if pg.graph.N_node == 0:
             pg.graph.add_node(cn)
             pts_B_hist.append(robot.pts_B)
-            
-            is_add_node = True
             pose_hist.append([robot.x, robot.y, robot.yaw])
+            pose_noise_hist.append([x_noise, y_noise, yaw_noise])
+            is_add_node = True
+            print(f"=== {pg.graph.N_node} nodes added ===")
         else:
-            if pg.graph.N_node > 0:
+            if is_optimise:
+                pn, _ = pg.graph.get_node(0)
+                p_pts = pts_B_hist[0] #for loop closing
+            else:
                 pn, _ = pg.graph.get_node(pg.graph.N_node - 1)
-            is_add_node = False
-            if len(list(pg.graph.node_list.keys())) == 0:
+                p_pts = pts_B_hist[-1] #for forming edge
+
+            d = np.sqrt((pn.x - cn.x)**2 + (pn.y - cn.y)**2)
+            d_ang = abs(wrap_ang(pn.theta - cn.theta))
+            if d >= update_distance or d_ang >= update_ang or is_optimise:
                 pg.graph.add_node(cn)
                 pts_B_hist.append(robot.pts_B)
-                p_pts = pts_B_hist[-1]
                 pose_hist.append([robot.x, robot.y, robot.yaw])
-
+                pose_noise_hist.append([x_noise, y_noise, yaw_noise])
+                is_add_node = True
                 print(f"=== {pg.graph.N_node} nodes added ===")
-            else:
-                d = np.sqrt((pn.x - cn.x)**2 + (pn.y - cn.y)**2)
-                d_ang = wrap_ang(pn.theta - cn.theta)
-                if d >= update_distance or d_ang >= update_ang:
-                    pg.graph.add_node(cn)
-                    pts_B_hist.append(robot.pts_B)
-                    is_add_node = True
-                    pose_hist.append([robot.x, robot.y, robot.yaw])
 
-                    print(f"=== {pg.graph.N_node} nodes added ===")
-
-        alliged_pts = None
-        if is_add_node or is_optimise:
+        if is_add_node and pg.graph.N_node >= 2:
 
             #rough transformation based on current node (cn) and previous node (pn)
             T_wj = compute_2D_Tmat(cn.x,     
@@ -147,11 +159,12 @@ def sim(sim_params,
                                    pn.y, 
                                    pn.theta)
 
+            print(f'node est - dx: {cn.x - pn.x}, dy: {pn.y - cn.y}, dang: {np.rad2deg(wrap_ang(cn.theta - pn.theta))}')
+
             T_iw  = np.linalg.inv(T_wi)
             T_ij  = np.matmul(T_iw, T_wj)
 
-            H_pts_B = np.concatenate((robot.pts_B, np.ones((robot.pts_B.shape[0], 1))), axis = 1)
-            pts_ij  = np.transpose(np.matmul(T_ij, np.transpose(H_pts_B)))[:, 0:2]
+            pts_ij = transform_pts(T_ij, robot.pts_B)
 
             #fine tune transformation
             transformation_history, alliged_pts = icp(p_pts, pts_ij, distance_threshold = 0.5, )
@@ -162,6 +175,8 @@ def sim(sim_params,
                 t = np.concatenate((t, np.array([[0, 0, 1]])), axis = 0)
                 T = np.matmul(t, T)
             T = np.matmul(T, T_ij)
+
+            print(f'est by lidar data - dx: {T[0, 2]}, dy: {T[1, 2]}, dang: {np.rad2deg(np.arctan2(T[1,0], T[0,0]))}')
 
             #update edge
             w = np.eye(3)
@@ -175,62 +190,70 @@ def sim(sim_params,
                       w)
             pg.graph.add_edge(e)
 
-            if is_optimise:
-                pg.optimise()
-                pts_G = []
-                s_nid = sorted(list(pg.graph.node_list.keys()))
-                for i, k in enumerate(s_nid):
-                    n, _ = pg.graph.get_node(k)
-                    try:
-                        T = compute_2D_Tmat(n.x, n.y, n.theta)
-                        H_pts_B = np.concatenate((
-                                                pts_B_hist[i], 
-                                                np.ones((pts_B_hist[i].shape[0], 1))
-                                                ), 
-                                                axis = 1)
-                        sub_pts_G = np.transpose(np.matmul(T, np.transpose(H_pts_B)))
-                        
-                        pts_G.append(sub_pts_G)
-                    except:
-                        print(i)
-                        print(len(pts_B_hist))
-                        print(s_nid)
+        #=== backend section ===#
+        if is_optimise:
+            pg.optimise()
+            pts_G = np.array([])
+            s_nid = sorted(list(pg.graph.node_list.keys()))
+            gmap.reset()
+            for i, k in enumerate(s_nid):
+                n, _ = pg.graph.get_node(k)
 
-        ax1.clear()
+                T = compute_2D_Tmat(n.x, n.y, n.theta)
+                sub_pts_G = transform_pts(T, pts_B_hist[i])
+                
+                pts_G = np.vstack([pts_G, sub_pts_G]) if pts_G.size else sub_pts_G
+
+                for pt in sub_pts_G:
+                    gmap.update_grid(pt[0], pt[1])
+
+        #=== visualisation ===#
+
+        ax[0,0].clear()
         for line in map.line_list:
-            ax1.plot([line.pt1.x, line.pt2.x],
+            ax[0,0].plot([line.pt1.x, line.pt2.x],
                      [line.pt1.y, line.pt2.y], '-b')
-            
-        ax1.plot(robot.x, robot.y, 'og')
-        ax1.plot([robot.x, robot.x + np.cos(robot.yaw)],
-                 [robot.y, robot.y + np.sin(robot.yaw)], 
-                '-g')
         
-        ph = np.array(pose_hist)
-        ax1.plot(ph[:,0], ph[:,1], 'xg')
+        #show ground truth
+        ax[0,0].plot(robot.x, robot.y, 'og')
+        ax[0,0].plot([robot.x, robot.x + np.cos(robot.yaw)],
+                     [robot.y, robot.y + np.sin(robot.yaw)], 
+                     '-g')
+        ax[0,0].plot(robot.pts_G[:, 0], robot.pts_G[:, 1], '.y')
 
-        for k in list(pg.graph.node_list.keys()):
-            n, _ = pg.graph.get_node(k)
-            ax1.plot(n.x, n.y, '+r')
+        #show icp alignment result
+        if is_add_node and pg.graph.N_node >= 2:
+            ax[0,1].clear()
 
-        if alliged_pts is not None:
-            ax2.clear()
-            ax2.plot(alliged_pts[:,0], alliged_pts[:,1], '.r')
-            ax2.plot(robot.pts_B[:,0], robot.pts_B[:,1], '+y')
-            ax2.plot(p_pts[:,0], p_pts[:,1], '.g')
-            ax2.set_aspect('equal', adjustable='box')
+            ax[0,1].plot(alliged_pts[:,0], alliged_pts[:,1], 'xr')
+            ax[0,1].plot(p_pts[:,0], p_pts[:,1], '.g')
 
-            #update point cloud at frame i
-            p_pts = copy.copy(robot.pts_B)
+        #show map result based on raw pose and raw lidar data
+        if (is_add_node or is_optimise) and pg.graph.N_node >= 2:
+            xn, yn, yawn = pose_noise_hist[-1]
+            T = compute_2d_tranfM(xn, yn, yawn)
+            T_pts = transform_pts(T, pts_B_hist[-1])
+            ax[1, 0].plot(T_pts[:, 0], T_pts[:, 1], '.g')
 
-        if len(pts_G) > 0:
+        #show map result based on loop closing result
+        if is_optimise:
+            ax[1,1].clear()
+            w_map = gmap.extract_w_map()
+            if len(w_map):
+                ax[1, 1].plot(w_map[:,0], w_map[:,1], '.g')
 
-            for pts in pts_G:
-                ax1.plot(pts[:,0], pts[:,1], '.g')
+        ax[0,0].set_title('Simulation')
+        ax[0,1].set_title('ICP alignment')
+        ax[1,0].set_title('No optimisation')
+        ax[1,1].set_title('With optimisation')
 
-        ax1.plot(robot.pts_G[:, 0], robot.pts_G[:, 1], '.y')
+        for i in range(2):
+            for j in range(2):
+                ax[i,j].set_aspect('equal', adjustable='box')
+                ax[i,j].set_xlabel('pos - x (m)')
+                ax[i,j].set_ylabel('pos - y (m)')
 
-        ax1.set_aspect('equal', adjustable='box')
+        fig.tight_layout()
         plt.draw()
         plt.pause(.0001)
 

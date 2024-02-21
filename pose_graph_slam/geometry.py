@@ -5,6 +5,15 @@ def compute_2D_Tmat(x, y, ang):
                      [np.sin(ang),  np.cos(ang),  y],
                      [          0,            0,  1.]])
 
+def transform_pts(T, pts):
+    
+    #convert to homogeneous coordinate
+    H_pts = np.concatenate((pts, np.ones((pts.shape[0], 1))), axis = 1)
+    #compute transformation
+    T_pts  = np.transpose(np.matmul(T, np.transpose(H_pts)))[:, 0:2]
+
+    return T_pts
+
 class Pt():
     def __init__(self, x, y):
         self.x = x

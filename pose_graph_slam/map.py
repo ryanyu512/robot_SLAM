@@ -69,102 +69,74 @@ class Map2D():
         ax.set_aspect('equal', adjustable='box')
         plt.show()
 
+class Occupancy_Map():
 
-# sx, sy, sa = 3., 8., 0.
-# poses1 = np.array([[sx + i*0.1, 
-#                     sy, 
-#                     sa] for i in range(100)])
+    def __init__(self, 
+                 min_x = -5.,
+                 min_y = -5.,
+                 w = 25.,
+                 l = 25.,
+                 resol = 0.05):
+        
+        self.min_x = min_x
+        self.min_y = min_y
+        self.w = w
+        self.l = l
+        self.resol = resol if resol is not None else 0.1
+        self.threshold = 5
+        self.nr = int(l//self.resol + np.ceil(l%self.resol))
+        self.nc = int(w//self.resol + np.ceil(w%self.resol))
+        self.gmap     = np.zeros(self.nr*self.nc)
 
-# sx, sy, sa = poses1[-1]
-# poses2 = np.array([[sx, 
-#                     sy, 
-#                     wrap_ang(sa + np.deg2rad(-1.)*i)] for i in range(90)])
+    def reset(self):
+        self.gmap     = np.zeros(self.nr*self.nc)
 
-# sx, sy, sa = poses2[-1]
-# poses3 = np.array([[sx, 
-#                     sy - i*0.1, 
-#                     wrap_ang(sa)] for i in range(20)])
+    def w2g(self, x, y):
 
-# sx, sy, sa = poses3[-1]
-# poses4 = np.array([[sx, 
-#                     sy, 
-#                     wrap_ang(sa + np.deg2rad(-1.)*i)] for i in range(90)])
+        dx = (x - self.min_x)
+        dy = (y - self.min_y)
+        r_ind = dy//self.resol + np.ceil(dy%self.resol)
+        c_ind = dx//self.resol + np.ceil(dx%self.resol)
 
-# sx, sy, sa = poses4[-1]
-# poses5 = np.array([[sx - i*0.1, 
-#                     sy, 
-#                     sa] for i in range(50)])
+        ind = int(r_ind*self.nc + c_ind)
+        return ind
 
-# sx, sy, sa = poses5[-1]
-# poses6 = np.array([[sx, 
-#                     sy, 
-#                     sa + np.deg2rad(1.)*i] for i in range(90)])
+    def g2w(self, g_ind):
 
-# sx, sy, sa = poses6[-1]
-# poses7 = np.array([[sx, 
-#                     sy - i*0.1, 
-#                     sa] for i in range(50)])
+        r_ind = g_ind//self.nr
+        c_ind = g_ind % self.nr
 
-# poses = np.concatenate((poses1, poses2, poses3, poses4, poses5, poses6, poses7), axis = 0)
+        xg = c_ind*self.resol + self.resol/2. + self.min_x
+        yg = r_ind*self.resol + self.resol/2. + self.min_y
 
-# lidar = Lidar()
-# pts_hist = []
-# T_pts_hist = []
-# T_hist = [np.eye(3)]
-# for i in range(poses.shape[0]):
-#     lidar.emit(poses[i][0], poses[i][1], poses[i][2])
-#     pts = lidar.receive(map, poses[i][0], poses[i][1], poses[i][2])
-#     pts_hist.append(pts)
-#     if i >= 1:
-#         pose_j = pts_hist[-1]
-#         T_wj = compute_2D_Tmat( poses[i][0] + np.random.normal(0, 0.02),     
-#                                 poses[i][1] + np.random.normal(0, 0.02),
-#                                 poses[i][2] + np.random.normal(0, np.deg2rad(0.1)))
-#         T_wi = compute_2D_Tmat(poses[i - 1][0] + np.random.normal(0, 0.02), 
-#                                poses[i - 1][1] + np.random.normal(0, 0.02), 
-#                                poses[i - 1][2] + np.random.normal(0, np.deg2rad(0.1)))
-#         T_iw = np.linalg.inv(T_wi)
-#         H_pts = np.concatenate((pts, np.ones((pts.shape[0], 1))), axis = 1)
-#         T_ij  = np.matmul(T_iw, T_wj)
-#         pts_ij = np.transpose(np.matmul(T_ij, np.transpose(H_pts)))[:, 0:2]
-#         transformation_history, aligned_points, e = icp(pts_hist[-2], pts_ij, distance_threshold = 0.2, )
-#         # print(f"e: {e}")
-#         T = np.eye(3)
-#         for t in transformation_history:
-#             t = np.concatenate((t, np.array([[0, 0, 1]])), axis = 0)
-#             T = np.matmul(t, T)
-#         T = np.matmul(T, T_ij)
-#         # T = T_ij
-#         T_hist.append(np.matmul(T_hist[-1], T))
+        return xg, yg
 
-#     H_pts  = np.concatenate((pts, np.ones((pts.shape[0], 1))), axis = 1)
-#     T_pts_hist.append(np.transpose(np.matmul(T_hist[-1], np.transpose(H_pts))))
+    def update_grid(self, x, y):
 
-# ax = plt.subplot(1, 1, 1)
+        if x < self.min_x or y < self.min_y:
+            return 
+        
+        if x > self.min_x + self.w or y > self.min_y + self.l:
+            return
 
-# for line in map.line_list:
-#     ax.plot([line.pt1.x, line.pt2.x],
-#             [line.pt1.y, line.pt2.y], '-b')
+        ind = self.w2g(x, y)
 
+        self.gmap[ind] += 1
 
-# # # for line in lidar1.beam_list:
-# # #     ax.plot(line.pt2.x, line.pt2.y, '.r')
+    def extract_w_map(self):
 
-# # # ax.plot([lidar.beam_list[0].pt1.x, lidar1.beam_list[0].pt2.x], 
-# # #         [lidar.beam_list[0].pt1.y, lidar1.beam_list[0].pt2.y], '--r')
-# # # ax.plot([lidar1.c.x, lidar1.c.x + np.cos(heading1)],
-# # #         [lidar1.c.y, lidar1.c.y + np.sin(heading1)], '-y')
-# for i in range(1, len(poses)):
-#     ax.plot([poses[i-1][0], poses[i][0]], 
-#             [poses[i-1][1], poses[i][1]], '-o')
+        inds = (self.gmap >= self.threshold)
+        w_map = np.array([])
 
-# # for pts in pts_hist:
-# #     ax.plot(pts[:, 0],
-# #             pts[:, 1], 'xg')
-# for pts in T_pts_hist:
-#     ax.plot(pts[:, 0],
-#             pts[:, 1], '.y')
-# ax.set_aspect('equal', adjustable='box')
-# plt.show()
+        for i in range(len(self.gmap)):
+            if inds[i]:
+                gx, gy = self.g2w(i)
+
+                w_map = np.vstack([w_map, np.array([gx, gy])]) if w_map.size else np.array([[gx, gy]])
+
+        return w_map
+
+        
+
 
 

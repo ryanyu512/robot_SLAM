@@ -7,7 +7,7 @@ class Lidar():
 
     def __init__(self):
         self.min_range = 0.1
-        self.max_range = 12.
+        self.max_range = 10.
         self.max_ang_range = np.deg2rad(360.)
         self.resol = np.deg2rad(1.)
         self.N_beams = int(self.max_ang_range/self.resol) + 1
