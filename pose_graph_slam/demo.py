@@ -1,9 +1,6 @@
 from sim import *
 
-sim_params = {'end_t': 10,
-              'dt': 0.02,
-              'is_animate': True,
-              'is_save_gif': True}
+sim_params = {'dt': 0.02}
 
 robot_params = {'init_x': 3.,
                 'init_y': 8.,
