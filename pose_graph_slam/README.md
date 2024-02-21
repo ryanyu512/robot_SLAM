@@ -1,5 +1,5 @@
 
-![demo](https://github.com/ryanyu512/robot_motion_control/assets/19774686/c15878b1-62b7-4f33-b408-e82e15c219db)
+[demo.webm](https://github.com/ryanyu512/robot_SLAM/assets/19774686/a93d0161-646d-4025-9124-9a43da9102a7)
 
 This project utilizes model predictive control (MPC) to achieve full control of an autonomous vehicle. Based on sliding windows of reference trajectories, model predictive control (MPC) computes optimised control inputs to ensure the control inputs are smooth and respects motion constraints. 
 
