@@ -6,7 +6,7 @@ This project utilizes pose graph SLAM for map generation. The relative estimatio
 1. demo.py: used for testing different parameters of pose graph SLAM.
 2. sim.py: custom function for running simulation
 3. icp.py: for fine-tuning the transformation between subsequent poses
-4. robot.py: define the properties of 2d vehicle
+4. robot.py: define the properties of 2D vehicle
 5. map.py: define the simulation 2D map and occupancy map
 6. pose_graph.py define the pose graph algorithm
 7. sensor.py: define the lidar sensor
