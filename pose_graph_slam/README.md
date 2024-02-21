@@ -1,7 +1,7 @@
 
 [demo.webm](https://github.com/ryanyu512/robot_SLAM/assets/19774686/a93d0161-646d-4025-9124-9a43da9102a7)
 
-This project utilizes pose graph SLAM for map generation. The relative estimation (delta x, delta y and delta heading) between subsequent poses could be estimated by inertial sensors. Also, the surrounding enviornment is measured by lidar and can also be used for relative estimation between subsequent posees. Pose graph SLAM acts as an optimiser to minimise the difference between relative estimation by inertial sensors and lidar sensor. Therefore, a more accurate map and localisation could be obtained at the same time. 
+This project utilizes pose graph SLAM for mapping and localisation. The relative estimation (delta x, delta y and delta heading) between subsequent poses could be estimated by inertial sensors. Also, the surrounding enviornment is measured by lidar and can also be used for relative estimation between subsequent posees. Pose graph SLAM acts as an optimiser to minimise the difference between relative estimation by inertial sensors and lidar sensor. Therefore, a more accurate map and localisation could be obtained at the same time. 
 
 1. demo.py: used for testing different parameters of pose graph SLAM.
 2. sim.py: custom function for running simulation
