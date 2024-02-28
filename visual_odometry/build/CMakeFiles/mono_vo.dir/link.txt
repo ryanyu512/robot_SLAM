@@ -1,0 +1,2 @@
+/usr/bin/ar qc libmono_vo.a  CMakeFiles/mono_vo.dir/mono_vo.cpp.o
+/usr/bin/ranlib libmono_vo.a

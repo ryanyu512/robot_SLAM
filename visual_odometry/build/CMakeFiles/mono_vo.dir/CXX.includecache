@@ -1,0 +1,28 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/ryan/github_repository/robot_SLAM/visual_odometry/mono_vo.cpp
+mono_vo.h
+/home/ryan/github_repository/robot_SLAM/visual_odometry/mono_vo.h
+util.h
+/home/ryan/github_repository/robot_SLAM/visual_odometry/util.h
+
+/home/ryan/github_repository/robot_SLAM/visual_odometry/mono_vo.h
+opencv4/opencv2/opencv.hpp
+-
+
+/home/ryan/github_repository/robot_SLAM/visual_odometry/util.h
+iostream
+-
+fstream
+-
+filesystem
+-
+opencv4/opencv2/opencv.hpp
+-
+
