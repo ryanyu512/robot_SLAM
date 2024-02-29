@@ -6,5 +6,5 @@ CXX_FLAGS = -std=c++17 -O2  -msse4 -O3 -DNDEBUG
 
 CXX_DEFINES = -DENABLE_SSE
 
-CXX_INCLUDES = -I/home/ryan/github_repository/robot_SLAM/visual_odometry -I/usr/include/eigen3 -isystem /usr/include/opencv4 
+CXX_INCLUDES = -I/usr/include/eigen3 -isystem /usr/include/opencv4 
 

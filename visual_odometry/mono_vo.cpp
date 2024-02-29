@@ -80,8 +80,6 @@ void get_tracking_matches(const cv::Mat &img1,
         }
 
         prev_kps = gd_kps2;
-
-        std::cout << "last good key points size: " << prev_kps.size() << std::endl;
 }
 
 void get_feature_matches(const cv::Mat &img1, 
