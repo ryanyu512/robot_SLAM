@@ -11,7 +11,6 @@ est_path  = []
 with open(est_pose_path, 'r') as csvfile:
     reader = csv.reader(csvfile, delimiter=',')
     for row in reader:
-        print(row)
         est_pose = np.array([[float(row[i]) for i in range(len(row))]])
         est_pose = np.reshape(est_pose, (4, 4))
         est_poses.append(est_pose)

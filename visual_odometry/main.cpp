@@ -30,7 +30,57 @@ int main(int argc, char **argv){
     std::vector<cv::Mat> imgs;
     load_img(img_dir, imgs);
 
+    //initilise pose history
+    std::vector<cv::Mat> est_pose_hist;
+
     //start mono vo
-    //is_display, is_track, detect_mode
-    mono_vo(imgs, gt_poses, Ks[0], true, false, 1); 
+    cv::Mat c_pose;
+    std::vector<cv::Point2f> prev_gd_kps;
+    
+    for (int i = 0; i < imgs.size(); i ++){
+        if (i == 0){
+            c_pose = gt_poses[i].clone();
+
+            if (c_pose.rows == 3){
+                cv::Mat tmp = (cv::Mat_<double>(1, 4) << 0., 0., 0., 1.);
+                c_pose.push_back(tmp);
+            }
+        }
+        else{
+
+            /*
+            Note: 
+            1. Monocular VO cannot recover actual translation vector directly
+            2. To verify implementation, I directly utilise the ground truth to compute the translation vector norm
+            3. To really compute actual translation vector norm, we can use inertial sensor or GPS
+            */
+
+            double t_norm = 0.;
+            cv::Mat actual_t = (gt_poses[i] - gt_poses[i - 1]).col(3);
+            for (int j = 0; j < 3; j ++)
+                t_norm += std::pow(actual_t.at<double>(j), 2);
+            t_norm = std::sqrt(t_norm);
+
+            //start mono vo
+            //is_display, is_track, detect_mode
+            cv::Mat R, t;
+
+            mono_vo(imgs[i - 1], imgs[i], gt_poses, Ks[0], true, true, 1, R, t, prev_gd_kps); 
+
+            cv::Mat T12, T21;
+            //T21 => transform normalised coordinate at frame {1} to frame {2}
+            get_T_mat(R, t*t_norm, T21);
+            //T12 => transform normalised coordinate at frame {2} to frame {1}
+            T12 = T21.inv();
+
+            //transform back to initial frame
+            //c_pose => transform normalised coordinate at frame {1} to frame {initial}
+            c_pose = c_pose*T12;
+        }
+
+        //store estimation history
+        est_pose_hist.push_back(c_pose.clone());
+    }
+
+    save_poses_to_csv("pose.csv", est_pose_hist);
 }
