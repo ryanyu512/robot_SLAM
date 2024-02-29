@@ -31,5 +31,6 @@ int main(int argc, char **argv){
     load_img(img_dir, imgs);
 
     //start mono vo
-    mono_vo(imgs, gt_poses, Ks[0], true);
+    //is_display, is_track, detect_mode
+    mono_vo(imgs, gt_poses, Ks[0], true, false, 1); 
 }

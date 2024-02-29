@@ -7,16 +7,6 @@
 #IncludeRegexTransform: 
 
 /home/ryan/github_repository/robot_SLAM/visual_odometry/main.cpp
-cmath
--
-iostream
--
-fstream
--
-algorithm
--
-opencv4/opencv2/opencv.hpp
--
 util.h
 /home/ryan/github_repository/robot_SLAM/visual_odometry/util.h
 mono_vo.h
