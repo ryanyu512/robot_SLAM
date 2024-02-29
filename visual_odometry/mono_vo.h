@@ -11,6 +11,14 @@ void detect_kpts(const cv::Mat &img,
                  const int mode,
                  std::vector<cv::KeyPoint> &kp);
 
+void get_tracking_matches(const cv::Mat &img1,
+                          const cv::Mat &img2,
+                          const bool is_display,
+                          const int  detect_mode,
+                          std::vector<cv::Point2f> &prev_kps,
+                          std::vector<cv::Point2f> &gd_kps1,
+                          std::vector<cv::Point2f> &gd_kps2);
+
 void get_feature_matches(const cv::Mat &img1, 
                          const cv::Mat &img2,
                          const bool is_display,
