@@ -1,5 +1,6 @@
-#include "stereo_vo.h"
 #include "util.h"
+#include "stereo_vo.h"
+
 
 //determine if redetection of keypoints is required for tracking
 const int MIN_PTS_THRESHOLD = 300;
@@ -82,65 +83,6 @@ void get_tracking_matches(const cv::Mat &img1,
         prev_kps = gd_kps2;
 }
 
-void get_feature_matches(const cv::Mat &img1, 
-                         const cv::Mat &img2,
-                         const bool is_display,
-                         const int detect_mode,
-                         std::vector<cv::Point2f> &gd_kps1,
-                         std::vector<cv::Point2f> &gd_kps2){
-    
-    //initialise detector, descriptor and matcher
-    cv::Ptr<cv::DescriptorExtractor> descriptor = cv::ORB::create();
-    cv::FlannBasedMatcher matcher = cv::FlannBasedMatcher(cv::makePtr<cv::flann::LshIndexParams>(12, 20, 2));
-    
-    //detect key points
-    std::vector<cv::KeyPoint> kp1, kp2;
-    detect_kpts(img1, detect_mode, kp1);
-    detect_kpts(img2, detect_mode, kp2);
-
-    //compute descriptor
-    cv::Mat d1, d2;
-    descriptor->compute(img1, kp1, d1);
-    descriptor->compute(img2, kp2, d2);
-
-    //compute matching
-    std::vector<std::vector<cv::DMatch>> knn_ms;
-    matcher.knnMatch(d1, d2, knn_ms, 2);
-
-    //obtain good matches
-    /*
-    1. we keep two best two matches
-    2. if m1.distance ~= m2.distance => two matches equally good => we don't know how to choose
-    3. however, if m1.distance < 0.7 * m2.distance => we may guess that m1 match is much better
-    */
-    std::vector<cv::DMatch> g_ms;
-    const float ratio_thres = 0.7f;
-    for (int i = 0; i < knn_ms.size(); i++){
-        if (knn_ms[i].size() >= 2 and knn_ms[i][0].distance < ratio_thres * knn_ms[i][1].distance){
-            g_ms.push_back(knn_ms[i][0]);
-        }
-    }
-
-    //get good keypoints
-    gd_kps1 = std::vector<cv::Point2f>(g_ms.size());
-    gd_kps2 = std::vector<cv::Point2f>(g_ms.size());
-
-    for (int i = 0; i < g_ms.size(); i++) {
-        gd_kps1[i] = kp1[g_ms[i].queryIdx].pt;
-        gd_kps2[i] = kp2[g_ms[i].trainIdx].pt;
-    }
-
-    if (is_display){
-        //draw matches
-        cv::Mat img_draw;
-        cv::drawMatches( img1, kp1, img2, kp2, g_ms, img_draw, cv::Scalar::all(-1),
-                        cv::Scalar::all(-1), std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
-        cv::imshow("draw", img_draw);
-        cv::waitKey(100);
-    }
-}
-
-
 void compute_E(const cv::Mat &K, 
                const std::vector<cv::Point2f> &gd_kps1,
                const std::vector<cv::Point2f> &gd_kps2,
@@ -162,37 +104,31 @@ void compute_E(const cv::Mat &K,
   cv::recoverPose(E, gd_kps1, gd_kps2, R, t, f, pp);
 }
 
-void mono_vo(const cv::Mat &p_img,
-             const cv::Mat &c_img,
-             const std::vector<cv::Mat> &gt_poses,
-             const cv::Mat &K, 
-             const bool is_display,
-             const bool is_track,
-             const int detect_mode, 
-             cv::Mat &R, 
-             cv::Mat &t,
-             std::vector<cv::Point2f> &prev_gd_kps){
+void get_sub_img(const cv::Mat &img
+                 const cv::rect &roi,
+                 cv::Mat &sub_img){
+    
+    sub_img = cv::Mat(img, roi).clone();
+}
 
-    //compute matching
-    std::vector<cv::Point2f> gd_kps1, gd_kps2;
-    if (is_track)
-        get_tracking_matches(p_img,
-                             c_img, 
-                             is_display,
-                             detect_mode,
-                             prev_gd_kps,
-                             gd_kps1,
-                             gd_kps2);
-    else
-        get_feature_matches(p_img,
-                            c_img, 
-                            is_display,
-                            detect_mode,
-                            gd_kps1,
-                            gd_kps2);
+void stereo_vo(const cv::Mat &p_L_img,
+               const cv::Mat &c_L_img,
+               const cv::Mat &c_R_img,
+               const bool is_display,
+               const int detect_mode,
+               cv::Mat &R, 
+               cv::Mat &t,
+               std::vector<cv::Point2f> &gd_pL_kps1){
+    
+    //compute matching based on previous LEFT image and current LEFT image
+    std::vector<cv::Point2f> gd_pL_kps1, gd_cL_kps2;
+    get_tracking_matches(p_L_img,
+                         c_L_img,
+                         is_display,
+                         detect_mode,
+                         gd_pL_kps1,
+                         gd_cL_kps2);            
 
-    //compute essential matrix
-    cv::Mat E;
-    compute_E(K, gd_kps1, gd_kps2, E, R, t);
+
 }
 

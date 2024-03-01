@@ -7,10 +7,10 @@
 #IncludeRegexTransform: 
 
 /home/ryan/github_repository/robot_SLAM/binocular_visual_odometry/stereo_vo.cpp
-stereo_vo.h
-/home/ryan/github_repository/robot_SLAM/binocular_visual_odometry/stereo_vo.h
 util.h
 /home/ryan/github_repository/robot_SLAM/binocular_visual_odometry/util.h
+stereo_vo.h
+/home/ryan/github_repository/robot_SLAM/binocular_visual_odometry/stereo_vo.h
 
 /home/ryan/github_repository/robot_SLAM/binocular_visual_odometry/stereo_vo.h
 opencv4/opencv2/opencv.hpp

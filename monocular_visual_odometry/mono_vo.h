@@ -35,7 +35,6 @@ void compute_E(const cv::Mat &K,
 
 void mono_vo(const cv::Mat &p_img,
              const cv::Mat &c_img,
-             const std::vector<cv::Mat> &gt_poses,
              const cv::Mat &K, 
              const bool is_display,
              const bool is_track,

@@ -2,7 +2,12 @@
 #include "util.h"
 
 //determine if redetection of keypoints is required for tracking
-const int MIN_PTS_THRESHOLD = 300;
+/*
+these parameters should be encapsulated into a class and configured by an external file
+(TODO)
+*/
+const int MIN_PTS_THRESHOLD  = 300;
+const float MAX_TRACKING_ERR = 10.f;
 
 void get_T_mat(const cv::Mat &R, 
                const cv::Mat &t, 
@@ -61,7 +66,11 @@ void get_tracking_matches(const cv::Mat &img1,
 
         //filter out bad matches
         for (int i = 0; i < pt2.size(); i++) {
-            if (pt2[i].x < 0 or pt2[i].y < 0)
+            if (pt2[i].x < 0 or 
+                pt2[i].y < 0 or 
+                pt2[i].x >= g_img2.cols or 
+                pt2[i].y >= g_img2.rows or 
+                error[i] >= MAX_TRACKING_ERR)
                 status[i] = 0;
             else if (status[i]){
                 gd_kps1.push_back(pt1[i]);
@@ -164,7 +173,6 @@ void compute_E(const cv::Mat &K,
 
 void mono_vo(const cv::Mat &p_img,
              const cv::Mat &c_img,
-             const std::vector<cv::Mat> &gt_poses,
              const cv::Mat &K, 
              const bool is_display,
              const bool is_track,
