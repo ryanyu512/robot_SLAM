@@ -1,0 +1,2 @@
+/usr/bin/ar qc libstereo_vo.a  CMakeFiles/stereo_vo.dir/stereo_vo.cpp.o
+/usr/bin/ranlib libstereo_vo.a

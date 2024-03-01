@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ryan/github_repository/robot_SLAM/visual_odometry
+CMAKE_SOURCE_DIR = /home/ryan/github_repository/robot_SLAM/monocular_visual_odometry
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ryan/github_repository/robot_SLAM/visual_odometry/build
+CMAKE_BINARY_DIR = /home/ryan/github_repository/robot_SLAM/monocular_visual_odometry/build
 
 # Include any dependencies generated for this target.
 include CMakeFiles/util.dir/depend.make
@@ -59,16 +59,16 @@ include CMakeFiles/util.dir/flags.make
 
 CMakeFiles/util.dir/util.cpp.o: CMakeFiles/util.dir/flags.make
 CMakeFiles/util.dir/util.cpp.o: ../util.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ryan/github_repository/robot_SLAM/visual_odometry/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/util.dir/util.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/util.dir/util.cpp.o -c /home/ryan/github_repository/robot_SLAM/visual_odometry/util.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ryan/github_repository/robot_SLAM/monocular_visual_odometry/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/util.dir/util.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/util.dir/util.cpp.o -c /home/ryan/github_repository/robot_SLAM/monocular_visual_odometry/util.cpp
 
 CMakeFiles/util.dir/util.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/util.dir/util.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ryan/github_repository/robot_SLAM/visual_odometry/util.cpp > CMakeFiles/util.dir/util.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ryan/github_repository/robot_SLAM/monocular_visual_odometry/util.cpp > CMakeFiles/util.dir/util.cpp.i
 
 CMakeFiles/util.dir/util.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/util.dir/util.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ryan/github_repository/robot_SLAM/visual_odometry/util.cpp -o CMakeFiles/util.dir/util.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ryan/github_repository/robot_SLAM/monocular_visual_odometry/util.cpp -o CMakeFiles/util.dir/util.cpp.s
 
 # Object files for target util
 util_OBJECTS = \
@@ -80,7 +80,7 @@ util_EXTERNAL_OBJECTS =
 libutil.a: CMakeFiles/util.dir/util.cpp.o
 libutil.a: CMakeFiles/util.dir/build.make
 libutil.a: CMakeFiles/util.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/ryan/github_repository/robot_SLAM/visual_odometry/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX static library libutil.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/ryan/github_repository/robot_SLAM/monocular_visual_odometry/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX static library libutil.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/util.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/util.dir/link.txt --verbose=$(VERBOSE)
 
@@ -94,6 +94,6 @@ CMakeFiles/util.dir/clean:
 .PHONY : CMakeFiles/util.dir/clean
 
 CMakeFiles/util.dir/depend:
-	cd /home/ryan/github_repository/robot_SLAM/visual_odometry/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ryan/github_repository/robot_SLAM/visual_odometry /home/ryan/github_repository/robot_SLAM/visual_odometry /home/ryan/github_repository/robot_SLAM/visual_odometry/build /home/ryan/github_repository/robot_SLAM/visual_odometry/build /home/ryan/github_repository/robot_SLAM/visual_odometry/build/CMakeFiles/util.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/ryan/github_repository/robot_SLAM/monocular_visual_odometry/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ryan/github_repository/robot_SLAM/monocular_visual_odometry /home/ryan/github_repository/robot_SLAM/monocular_visual_odometry /home/ryan/github_repository/robot_SLAM/monocular_visual_odometry/build /home/ryan/github_repository/robot_SLAM/monocular_visual_odometry/build /home/ryan/github_repository/robot_SLAM/monocular_visual_odometry/build/CMakeFiles/util.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/util.dir/depend
 

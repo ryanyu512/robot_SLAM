@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ryan/github_repository/robot_SLAM/visual_odometry
+CMAKE_SOURCE_DIR = /home/ryan/github_repository/robot_SLAM/monocular_visual_odometry
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ryan/github_repository/robot_SLAM/visual_odometry/build
+CMAKE_BINARY_DIR = /home/ryan/github_repository/robot_SLAM/monocular_visual_odometry/build
 
 # Include any dependencies generated for this target.
 include CMakeFiles/mono_vo.dir/depend.make
@@ -59,16 +59,16 @@ include CMakeFiles/mono_vo.dir/flags.make
 
 CMakeFiles/mono_vo.dir/mono_vo.cpp.o: CMakeFiles/mono_vo.dir/flags.make
 CMakeFiles/mono_vo.dir/mono_vo.cpp.o: ../mono_vo.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ryan/github_repository/robot_SLAM/visual_odometry/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/mono_vo.dir/mono_vo.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/mono_vo.dir/mono_vo.cpp.o -c /home/ryan/github_repository/robot_SLAM/visual_odometry/mono_vo.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ryan/github_repository/robot_SLAM/monocular_visual_odometry/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/mono_vo.dir/mono_vo.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/mono_vo.dir/mono_vo.cpp.o -c /home/ryan/github_repository/robot_SLAM/monocular_visual_odometry/mono_vo.cpp
 
 CMakeFiles/mono_vo.dir/mono_vo.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/mono_vo.dir/mono_vo.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ryan/github_repository/robot_SLAM/visual_odometry/mono_vo.cpp > CMakeFiles/mono_vo.dir/mono_vo.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ryan/github_repository/robot_SLAM/monocular_visual_odometry/mono_vo.cpp > CMakeFiles/mono_vo.dir/mono_vo.cpp.i
 
 CMakeFiles/mono_vo.dir/mono_vo.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mono_vo.dir/mono_vo.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ryan/github_repository/robot_SLAM/visual_odometry/mono_vo.cpp -o CMakeFiles/mono_vo.dir/mono_vo.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ryan/github_repository/robot_SLAM/monocular_visual_odometry/mono_vo.cpp -o CMakeFiles/mono_vo.dir/mono_vo.cpp.s
 
 # Object files for target mono_vo
 mono_vo_OBJECTS = \
@@ -80,7 +80,7 @@ mono_vo_EXTERNAL_OBJECTS =
 libmono_vo.a: CMakeFiles/mono_vo.dir/mono_vo.cpp.o
 libmono_vo.a: CMakeFiles/mono_vo.dir/build.make
 libmono_vo.a: CMakeFiles/mono_vo.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/ryan/github_repository/robot_SLAM/visual_odometry/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX static library libmono_vo.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/ryan/github_repository/robot_SLAM/monocular_visual_odometry/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX static library libmono_vo.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/mono_vo.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/mono_vo.dir/link.txt --verbose=$(VERBOSE)
 
@@ -94,6 +94,6 @@ CMakeFiles/mono_vo.dir/clean:
 .PHONY : CMakeFiles/mono_vo.dir/clean
 
 CMakeFiles/mono_vo.dir/depend:
-	cd /home/ryan/github_repository/robot_SLAM/visual_odometry/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ryan/github_repository/robot_SLAM/visual_odometry /home/ryan/github_repository/robot_SLAM/visual_odometry /home/ryan/github_repository/robot_SLAM/visual_odometry/build /home/ryan/github_repository/robot_SLAM/visual_odometry/build /home/ryan/github_repository/robot_SLAM/visual_odometry/build/CMakeFiles/mono_vo.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/ryan/github_repository/robot_SLAM/monocular_visual_odometry/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ryan/github_repository/robot_SLAM/monocular_visual_odometry /home/ryan/github_repository/robot_SLAM/monocular_visual_odometry /home/ryan/github_repository/robot_SLAM/monocular_visual_odometry/build /home/ryan/github_repository/robot_SLAM/monocular_visual_odometry/build /home/ryan/github_repository/robot_SLAM/monocular_visual_odometry/build/CMakeFiles/mono_vo.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/mono_vo.dir/depend
 

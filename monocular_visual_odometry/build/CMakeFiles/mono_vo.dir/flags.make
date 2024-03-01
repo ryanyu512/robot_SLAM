@@ -6,5 +6,5 @@ CXX_FLAGS = -std=c++17 -O2  -msse4 -O3 -DNDEBUG
 
 CXX_DEFINES = -DENABLE_SSE
 
-CXX_INCLUDES = -I/usr/include/opencv4 -I/usr/include/eigen3 
+CXX_INCLUDES = -I/usr/include/opencv4 
 
