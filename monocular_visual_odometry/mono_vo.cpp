@@ -41,7 +41,7 @@ void get_tracking_matches(const cv::Mat &img1,
                           const cv::Mat &img2,
                           const bool is_display,
                           const int  detect_mode,
-                          std::vector<cv::Point2f> &prev_kps,
+                          const std::vector<cv::Point2f> &last_kps, 
                           std::vector<cv::Point2f> &gd_kps1,
                           std::vector<cv::Point2f> &gd_kps2){
 
@@ -51,19 +51,20 @@ void get_tracking_matches(const cv::Mat &img1,
 
         std::vector<cv::KeyPoint> kp1;
         std::vector<cv::Point2f> pt1, pt2;
-        if (prev_kps.size() <= MIN_PTS_THRESHOLD){
+        if (last_kps.size() <= MIN_PTS_THRESHOLD){
             detect_kpts(g_img1, detect_mode, kp1);
             pt1 = std::vector<cv::Point2f>(kp1.size());
             for (int i = 0; i < pt1.size(); i ++)
                 pt1[i] = kp1[i].pt;
         }
         else{
-            pt1 = prev_kps;
+            pt1 = last_kps;
         }
         std::vector<uchar> status;
         std::vector<float> error;
         cv::calcOpticalFlowPyrLK(g_img1, g_img2, pt1, pt2, status, error, cv::Size(21, 21), 5);
 
+        
         //filter out bad matches
         for (int i = 0; i < pt2.size(); i++) {
             if (pt2[i].x < 0 or 
@@ -87,8 +88,6 @@ void get_tracking_matches(const cv::Mat &img1,
             cv::imshow("draw", img_draw);
             cv::waitKey(100);
         }
-
-        prev_kps = gd_kps2;
 }
 
 void get_feature_matches(const cv::Mat &img1, 
@@ -179,7 +178,7 @@ void mono_vo(const cv::Mat &p_img,
              const int detect_mode, 
              cv::Mat &R, 
              cv::Mat &t,
-             std::vector<cv::Point2f> &prev_gd_kps){
+             std::vector<cv::Point2f> &last_kps){
 
     //compute matching
     std::vector<cv::Point2f> gd_kps1, gd_kps2;
@@ -188,7 +187,7 @@ void mono_vo(const cv::Mat &p_img,
                              c_img, 
                              is_display,
                              detect_mode,
-                             prev_gd_kps,
+                             last_kps,
                              gd_kps1,
                              gd_kps2);
     else
@@ -202,5 +201,8 @@ void mono_vo(const cv::Mat &p_img,
     //compute essential matrix
     cv::Mat E;
     compute_E(K, gd_kps1, gd_kps2, E, R, t);
+
+    //update last tracking points
+    last_kps = gd_kps2;
 }
 

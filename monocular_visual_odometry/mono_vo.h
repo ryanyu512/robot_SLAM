@@ -15,7 +15,7 @@ void get_tracking_matches(const cv::Mat &img1,
                           const cv::Mat &img2,
                           const bool is_display,
                           const int  detect_mode,
-                          std::vector<cv::Point2f> &prev_kps,
+                          const std::vector<cv::Point2f> &last_kps,
                           std::vector<cv::Point2f> &gd_kps1,
                           std::vector<cv::Point2f> &gd_kps2);
 

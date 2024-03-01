@@ -35,7 +35,9 @@ int main(int argc, char **argv){
 
     //start mono vo
     cv::Mat c_pose;
-    std::vector<cv::Point2f> prev_gd_kps;
+
+    //initialsie the last good tracking points
+    std::vector<cv::Point2f> last_kps;
     
     for (int i = 0; i < imgs.size(); i ++){
         if (i == 0){
@@ -65,7 +67,7 @@ int main(int argc, char **argv){
             //is_display, is_track, detect_mode
             cv::Mat R, t;
 
-            mono_vo(imgs[i - 1], imgs[i], Ks[0], true, true, 1, R, t, prev_gd_kps); 
+            mono_vo(imgs[i - 1], imgs[i], Ks[0], true, true, 1, R, t, last_kps); 
 
             cv::Mat T12, T21;
             //T21 => transform normalised coordinate at frame {1} to frame {2}
