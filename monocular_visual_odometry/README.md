@@ -1,4 +1,4 @@
-Compared with monocular VO, binocular VO can recover depth and hence translation vector directly. In this project, ORB detector is chosen for fast feature detection on the previous left image. Then, KLT optical flow is utilised to track the current left image. Based on the feature points on both images, disparity map is computed via StereoSGBM. Then, triangulation technique is used to recover the 3d points of previous and current frame. To obtain the relative pose, ceres library is chosen for non-linear optimisation of reprojection error since it could automatically compute of jacobian and hessian matrix to shorten development time.
+ORB detector couples with KLT optical flow to detect and track features. Based on stereo images, the disparity map is computed via StereoSGBM. Triangulation technique is used to recover the 3d points. To obtain the relative pose, Ceres library is chosen for minimisation of reprojection error since it could automatically compute the jacobian and hessian matrix to shorten development time.
 
 1. main.cpp: used for demo
 2. util.h/cpp: define frequently used functions (i.e. loading camera parameters)
