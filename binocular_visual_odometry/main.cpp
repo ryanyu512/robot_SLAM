@@ -15,9 +15,14 @@ int main(int argc, char **argv){
     std::string R_img_dir    = data_root + "/image_r";
     std::string gt_pose_path = data_root + "/poses.txt";
 
-    //load intrinsic matrix
-    std::vector<cv::Mat> Ks;
-    get_K_mat(K_path, " ", Ks);
+    //load intrinsic and projection matrix
+    std::vector<cv::Mat> Ks, Ps;
+    get_K_mat(K_path, " ", Ks, Ps);
+
+    std::cout << "L projection matrix: \n" << std::endl;
+    std::cout << Ps[0] << std::endl;
+    std::cout << "R projection matrix: \n" << std::endl;
+    std::cout << Ps[1] << std::endl;
 
     //load ground truth poses
     std::vector<cv::Mat> gt_poses;
@@ -31,14 +36,20 @@ int main(int argc, char **argv){
     //initilise pose history
     std::vector<cv::Mat> est_pose_hist;
 
-    //start mono vo
+    //initialise current pose
     cv::Mat c_pose;
 
     //initialise last tracking points on the left image
-    std::vector<cv::Point2f> gd_pL_kps1;
-    
-    for (int i = 0; i < imgs.size(); i ++){
+    std::vector<cv::Point2f> last_L_kps;
+
+    //initialise last disparity map based on stereo matching
+    cv::Mat last_disparity_map;
+
+    //start mono vo
+    for (int i = 0; i < R_imgs.size(); i ++){
         if (i == 0){
+            compute_disparity_map(L_imgs[i], R_imgs[i], last_disparity_map);
+
             c_pose = gt_poses[i].clone();
 
             if (c_pose.rows == 3){
@@ -52,31 +63,29 @@ int main(int argc, char **argv){
             cv::Mat R, t;
 
             stereo_vo(L_imgs[i - 1], 
+                      R_imgs[i - 1],
                       L_imgs[i],
                       R_imgs[i], 
-                      gt_poses, 
-                      Ks[0], 
+                      Ps, 
                       true, 
-                      true, 
-                      1, 
+                      0, 
                       R, 
                       t, 
-                      prev_gd_kps); 
+                      last_disparity_map,
+                      last_L_kps); 
 
-    //         cv::Mat T12, T21;
-    //         //T21 => transform normalised coordinate at frame {1} to frame {2}
-    //         get_T_mat(R, t*t_norm, T21);
-    //         //T12 => transform normalised coordinate at frame {2} to frame {1}
-    //         T12 = T21.inv();
+            cv::Mat T12;
+            //T21 => transform normalised coordinate at frame {2} to frame {1}
+            get_T_mat(R, t, T12);
 
-    //         //transform back to initial frame
-    //         //c_pose => transform normalised coordinate at frame {1} to frame {initial}
-    //         c_pose = c_pose*T12;
-    //     }
+            //transform back to initial frame
+            //c_pose => transform normalised coordinate at frame {1} to frame {initial}
+            c_pose = c_pose*T12;
+        }
 
-    //     //store estimation history
-    //     est_pose_hist.push_back(c_pose.clone());
+        //store estimation history
+        est_pose_hist.push_back(c_pose.clone());
     }
 
-    // save_poses_to_csv("pose.csv", est_pose_hist);
+    save_poses_to_csv("pose.csv", est_pose_hist);
 }

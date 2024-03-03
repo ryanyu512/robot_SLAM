@@ -11,7 +11,8 @@ void save_poses_to_csv(const std::string &file_path,
 
 void get_K_mat(const std::string file_path, 
                const std::string delimiter, 
-               std::vector<cv::Mat> &Ks);
+               std::vector<cv::Mat> &Ks,
+               std::vector<cv::Mat> &Ps);
 
 void load_path_list(const std::string dir, 
                     std::vector<std::string> &list);

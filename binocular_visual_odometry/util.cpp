@@ -25,7 +25,8 @@ void save_poses_to_csv(const std::string &file_path,
 
 void get_K_mat(const std::string file_path, 
                const std::string delimiter, 
-               std::vector<cv::Mat> &Ks){
+               std::vector<cv::Mat> &Ks, 
+               std::vector<cv::Mat> &Ps){
 
     std::ifstream read_file(file_path);
 
@@ -46,12 +47,15 @@ void get_K_mat(const std::string file_path,
             if (pos == std::string::npos)
                 break;
         };
-        Ks.push_back(cv::Mat(1, tmp.size(), CV_64F, tmp.data()).clone());
+        Ps.push_back(cv::Mat(1, tmp.size(), CV_64F, tmp.data()).clone());
     }
 
-    for (int i = 0; i < Ks.size(); i ++){
+
+
+    for (int i = 0; i < Ps.size(); i ++){
         cv::Rect roi(0, 0, 3, 3);
-        Ks[i] = cv::Mat(Ks[i].reshape(0, 3), roi).clone(); //col, row = (4, 3)
+        Ps[i] = (Ps[i].reshape(0, 3)).clone(); //col, row = (4, 3)
+        Ks.push_back(cv::Mat(Ps[i], roi).clone()); 
     }
 }
 

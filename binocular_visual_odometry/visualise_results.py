@@ -2,7 +2,7 @@ import csv
 import numpy as np
 import matplotlib.pyplot as plt
 
-data_root = 'KITTI_sequence_1'
+data_root = 'KITTI_sequence_2'
 est_pose_path = 'build/pose.csv'
 gt_pose_path = data_root + '/poses.txt'
 

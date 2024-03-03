@@ -129,6 +129,10 @@ main: /usr/lib/x86_64-linux-gnu/libopencv_flann.so.4.2.0
 main: /usr/lib/x86_64-linux-gnu/libopencv_photo.so.4.2.0
 main: /usr/lib/x86_64-linux-gnu/libopencv_imgproc.so.4.2.0
 main: /usr/lib/x86_64-linux-gnu/libopencv_core.so.4.2.0
+main: /usr/local/lib/libceres.a
+main: /usr/lib/x86_64-linux-gnu/libglog.so
+main: /usr/lib/x86_64-linux-gnu/liblapack.so
+main: /usr/lib/x86_64-linux-gnu/libblas.so
 main: CMakeFiles/main.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/ryan/github_repository/robot_SLAM/binocular_visual_odometry/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable main"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/main.dir/link.txt --verbose=$(VERBOSE)

@@ -13,6 +13,14 @@ stereo_vo.h
 /home/ryan/github_repository/robot_SLAM/binocular_visual_odometry/stereo_vo.h
 
 /home/ryan/github_repository/robot_SLAM/binocular_visual_odometry/stereo_vo.h
+random
+-
+limits
+-
+ceres/ceres.h
+-
+ceres/rotation.h
+-
 opencv4/opencv2/opencv.hpp
 -
 
